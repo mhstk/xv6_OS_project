@@ -532,3 +532,26 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+
+
+
+//mySystemCall
+
+int
+getChildren(int pid)
+{
+  struct proc *p;
+
+  acquire(&ptable.lock);
+  int sum = 0;
+  int pow = 1;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->parent->pid == pid){
+      sum += p->pid * pow;
+      pow *= 10;
+    }
+  }
+  release(&ptable.lock);
+  return sum;
+}
