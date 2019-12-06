@@ -7,6 +7,8 @@
 #include "mmu.h"
 #include "proc.h"
 
+int invoked[24];
+
 int
 sys_fork(void)
 {
@@ -110,5 +112,16 @@ sys_getChildren(void)
   if(argint(0, &pid) < 0)
     return -1;
   return getChildren(pid);
+}
+
+
+int
+sys_getCount(void)
+{
+  int sysid;
+
+  if(argint(0, &sysid) < 0)
+    return -1;
+  return sysid;
 }
 

@@ -120,7 +120,6 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
-int            getppid(void);
 int            getChildren(int);
 
 // swtch.S

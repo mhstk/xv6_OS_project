@@ -25,6 +25,7 @@ int sleep(int);
 int uptime(void);
 int getppid(void);
 int getChildren(int);
+int getCount(int);
 
 
 // ulib.c
