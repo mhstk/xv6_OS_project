@@ -140,3 +140,17 @@ sys_pprc(void)
   return pprc();
 }
 
+
+int
+sys_changePriority(void)
+{
+  int nPri;
+  int pid;
+
+  if(argint(0, &pid) < 0)
+    return -1;
+  if(argint(1, &nPri) < 0)
+    return -1;
+  return changePriority(pid,nPri);
+}
+

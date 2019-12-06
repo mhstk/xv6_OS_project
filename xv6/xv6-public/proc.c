@@ -624,3 +624,25 @@ pprc(void)
   release(&ptable.lock);
   return 0;
 }
+
+
+
+
+
+int
+changePriority(int pid , int nPri)
+{
+  struct proc *p;
+
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid){
+      p->priority = nPri;
+      release(&ptable.lock);
+      return 1;
+    }
+  }
+  release(&ptable.lock);
+  return -1;
+}
+

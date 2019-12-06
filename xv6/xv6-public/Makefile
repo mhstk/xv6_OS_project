@@ -185,6 +185,7 @@ UPROGS=\
 	_getCountTest\
 	_pprc\
 	_tst\
+	_chpr\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

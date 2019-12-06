@@ -33,4 +33,4 @@ SYSCALL(getppid)
 SYSCALL(getChildren)
 SYSCALL(getCount)
 SYSCALL(pprc)
-
+SYSCALL(changePriority)

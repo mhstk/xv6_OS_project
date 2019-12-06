@@ -107,6 +107,7 @@ extern int sys_getppid(void);
 extern int sys_getChildren(void);
 extern int sys_getCount(void);
 extern int sys_pprc(void);
+extern int sys_changePriority(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -134,6 +135,7 @@ static int (*syscalls[])(void) = {
 [SYS_getChildren]   sys_getChildren,
 [SYS_getCount]	sys_getCount,
 [SYS_pprc]	sys_pprc,
+[SYS_changePriority]	sys_changePriority,
 };
 
 void

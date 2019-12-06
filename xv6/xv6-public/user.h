@@ -27,6 +27,7 @@ int getppid(void);
 int getChildren(int);
 int getCount(int);
 int pprc(void);
+int changePriority(int, int);
 
 
 // ulib.c

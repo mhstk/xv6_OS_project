@@ -122,6 +122,7 @@ void            wakeup(void*);
 void            yield(void);
 int            getChildren(int);
 int		pprc(void);
+int		changePriority(int,int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
