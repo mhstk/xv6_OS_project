@@ -117,6 +117,35 @@ found:
   {
     p->syscallCounter[i] = 0;
   }
+
+  p->priority = 5;
+
+  acquire(&ptable.lock);
+
+  struct proc *p2;
+
+  long minCp = 0;
+  i=0;
+  for(p2 = ptable.proc; p2 < &ptable.proc[NPROC]; p2++){
+    if (p2->state != UNUSED && p2->state != EMBRYO){
+      if (i==0){
+        minCp = p2->calculatedPriority;
+        i++;
+      }
+      if (minCp > p2->calculatedPriority)
+        minCp = p2->calculatedPriority;
+    }
+  }
+
+  if (i==0){
+    p->calculatedPriority = 0;
+  }else{
+    p->calculatedPriority = minCp;
+  }
+
+
+  release(&ptable.lock);
+
   
   
 
@@ -395,6 +424,10 @@ yield(void)
 {
   acquire(&ptable.lock);  //DOC: yieldlock
   myproc()->state = RUNNABLE;
+
+  myproc()->calculatedPriority += myproc()->priority;
+
+
   sched();
   release(&ptable.lock);
 }
@@ -571,21 +604,21 @@ pprc(void)
 {
   struct proc *p;
 
-  cprintf("name\tpid\tstate\n");
+  cprintf("name\tpid\tstate\t\tpriority\tcalculatedPriority\n");
 
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->state != UNUSED){
       if (p->state == RUNNING)
-        cprintf("%s\t%d\t%s\n", p->name , p->pid, "RUNNING");
+        cprintf("%s\t%d\t%s\t\t%d\t\t%d\n", p->name , p->pid, "RUNNING",p->priority,p->calculatedPriority);
       if (p->state == RUNNABLE)
-        cprintf("%s\t%d\t%s\n", p->name , p->pid, "RUNNABLE");
+        cprintf("%s\t%d\t%s\t%d\t\t%d\n", p->name , p->pid, "RUNNABLE",p->priority,p->calculatedPriority);
       if (p->state == SLEEPING)
-        cprintf("%s\t%d\t%s\n", p->name , p->pid, "SLEEPING"); 
+        cprintf("%s\t%d\t%s\t%d\t\t%d\n", p->name , p->pid, "SLEEPING",p->priority,p->calculatedPriority); 
       if (p->state == ZOMBIE)
-        cprintf("%s\t%d\t%s\n", p->name , p->pid, "ZOMBIE");
+        cprintf("%s\t%d\t%s\t%d\t\t%d\n", p->name , p->pid, "ZOMBIE",p->priority,p->calculatedPriority);
       if (p->state == EMBRYO)
-        cprintf("%s\t%d\t%s\n", p->name , p->pid, "EMBRYO");
+        cprintf("%s\t%d\t%s\t%d\t\t%d\n", p->name , p->pid, "EMBRYO",p->priority,p->calculatedPriority);
     }
   }
   release(&ptable.lock);

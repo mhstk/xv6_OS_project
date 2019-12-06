@@ -50,7 +50,9 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
 
-  int syscallCounter[40];
+  int syscallCounter[40];      //counter for each syscall invoked by this process
+  int priority;                //priority [1,5] , 1 most , 5 least
+  long calculatedPriority;      //calcculatedPriority += priority
 
   
 };
