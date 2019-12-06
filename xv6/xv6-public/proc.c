@@ -112,6 +112,14 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
+  int i=0;
+  for ( i = 0; i < 40; i++)
+  {
+    p->syscallCounter[i] = 0;
+  }
+  
+  
+
   return p;
 }
 
@@ -554,4 +562,32 @@ getChildren(int pid)
   }
   release(&ptable.lock);
   return sum;
+}
+
+
+
+int
+pprc(void)
+{
+  struct proc *p;
+
+  cprintf("name\tpid\tstate\n");
+
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state != UNUSED){
+      if (p->state == RUNNING)
+        cprintf("%s\t%d\t%s\n", p->name , p->pid, "RUNNING");
+      if (p->state == RUNNABLE)
+        cprintf("%s\t%d\t%s\n", p->name , p->pid, "RUNNABLE");
+      if (p->state == SLEEPING)
+        cprintf("%s\t%d\t%s\n", p->name , p->pid, "SLEEPING"); 
+      if (p->state == ZOMBIE)
+        cprintf("%s\t%d\t%s\n", p->name , p->pid, "ZOMBIE");
+      if (p->state == EMBRYO)
+        cprintf("%s\t%d\t%s\n", p->name , p->pid, "EMBRYO");
+    }
+  }
+  release(&ptable.lock);
+  return 0;
 }

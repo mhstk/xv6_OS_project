@@ -26,6 +26,7 @@ int uptime(void);
 int getppid(void);
 int getChildren(int);
 int getCount(int);
+int pprc(void);
 
 
 // ulib.c

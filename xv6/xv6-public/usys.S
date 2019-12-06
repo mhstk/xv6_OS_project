@@ -32,3 +32,5 @@ SYSCALL(uptime)
 SYSCALL(getppid)
 SYSCALL(getChildren)
 SYSCALL(getCount)
+SYSCALL(pprc)
+

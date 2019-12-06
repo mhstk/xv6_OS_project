@@ -7,17 +7,19 @@
 #include "mmu.h"
 #include "proc.h"
 
-int invoked[24];
+
 
 int
 sys_fork(void)
 {
+
   return fork();
 }
 
 int
 sys_exit(void)
 {
+
   exit();
   return 0;  // not reached
 }
@@ -25,12 +27,14 @@ sys_exit(void)
 int
 sys_wait(void)
 {
+
   return wait();
 }
 
 int
 sys_kill(void)
 {
+
   int pid;
 
   if(argint(0, &pid) < 0)
@@ -41,12 +45,14 @@ sys_kill(void)
 int
 sys_getpid(void)
 {
+
   return myproc()->pid;
 }
 
 int
 sys_sbrk(void)
 {
+
   int addr;
   int n;
 
@@ -61,6 +67,7 @@ sys_sbrk(void)
 int
 sys_sleep(void)
 {
+
   int n;
   uint ticks0;
 
@@ -84,6 +91,7 @@ sys_sleep(void)
 int
 sys_uptime(void)
 {
+
   uint xticks;
 
   acquire(&tickslock);
@@ -122,6 +130,13 @@ sys_getCount(void)
 
   if(argint(0, &sysid) < 0)
     return -1;
-  return sysid;
+  return myproc()->syscallCounter[sysid];
+}
+
+
+int
+sys_pprc(void)
+{
+  return pprc();
 }
 
