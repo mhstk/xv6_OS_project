@@ -18,7 +18,7 @@ int nextpid = 1;
 
 //
 
-int mode=0;
+int mode=0;    // mode for policy: 0 for default. 1 for modified xv6. 2 for prority.
 
 //
 extern void forkret(void);
@@ -426,10 +426,17 @@ scheduler(void)
 
 
 
+
+// getter for mode
 int getMode(){
   return mode;
 }
 
+
+// changePolicy system call
+// 0 : normal xv6
+// 1 : modified xv6 -> quantom added
+// 2 : modified with priority -> quantom and priority
 int changePolicy(int nPol){
   if (nPol >= 0 && nPol <= 2){
     mode = nPol;
@@ -515,23 +522,6 @@ void myscheduler(struct cpu *c ){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores
 // intena because intena is a property of this
@@ -565,7 +555,8 @@ yield(void)
   acquire(&ptable.lock);  //DOC: yieldlock
   myproc()->state = RUNNABLE;
 
-  myproc()->calculatedPriority += myproc()->priority;
+  if (mode == 2)
+    myproc()->calculatedPriority += myproc()->priority;
 
 
   sched();
