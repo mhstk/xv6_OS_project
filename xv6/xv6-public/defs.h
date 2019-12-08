@@ -113,6 +113,10 @@ struct proc*    myproc();
 void            pinit(void);
 void            procdump(void);
 void            scheduler(void) __attribute__((noreturn));
+
+void            myscheduler(struct cpu*);
+int             getMode();
+
 void            sched(void);
 void            setproc(struct proc*);
 void            sleep(void*, struct spinlock*);
@@ -123,6 +127,7 @@ void            yield(void);
 int            getChildren(int);
 int		pprc(void);
 int		changePriority(int,int);
+int		changePolicy(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

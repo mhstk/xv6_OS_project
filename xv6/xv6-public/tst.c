@@ -31,12 +31,15 @@ main(int argc, char **argv)
         }
     }
     
+ 
 
 
     
-    
+    // for ( i = 0; i < num; i++)
+    // {
+    //     wait();
+    // }
 
-    // printf(1, "count:    %d\n" , getCount(atoi(argv[1])));
     exit();
             
 }

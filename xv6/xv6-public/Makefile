@@ -186,6 +186,7 @@ UPROGS=\
 	_pprc\
 	_tst\
 	_chpr\
+	_chpl\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

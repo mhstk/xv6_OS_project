@@ -154,3 +154,12 @@ sys_changePriority(void)
   return changePriority(pid,nPri);
 }
 
+int
+sys_changePolicy(void)
+{
+  int nPol;
+
+  if(argint(0, &nPol) < 0)
+    return -1;
+  return changePolicy(nPol);
+}

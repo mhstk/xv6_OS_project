@@ -8,6 +8,13 @@ struct cpu {
   int ncli;                    // Depth of pushcli nesting.
   int intena;                  // Were interrupts enabled before pushcli?
   struct proc *proc;           // The process running on this cpu or null
+
+
+
+
+
+
+  int mode;                     // 0 for default. 1 for modified xv6. 2 for prority.
 };
 
 extern struct cpu cpus[NCPU];

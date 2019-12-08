@@ -25,3 +25,4 @@
 #define SYS_getCount 24
 #define SYS_pprc 25
 #define SYS_changePriority 26
+#define SYS_changePolicy 27

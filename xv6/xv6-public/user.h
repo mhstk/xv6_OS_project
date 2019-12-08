@@ -28,6 +28,7 @@ int getChildren(int);
 int getCount(int);
 int pprc(void);
 int changePriority(int, int);
+int changePolicy(int);
 
 
 // ulib.c

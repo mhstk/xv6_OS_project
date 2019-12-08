@@ -15,6 +15,12 @@ struct {
 static struct proc *initproc;
 
 int nextpid = 1;
+
+//
+
+int mode=0;
+
+//
 extern void forkret(void);
 extern void trapret(void);
 
@@ -369,11 +375,87 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    struct proc *low ;
-    int check = 0;
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
+    // struct proc *low ;
+    // int check = 0;
+
+
+    if (mode == 2){
+      myscheduler(c);
+    }else{
+
+      for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+        if(p->state != RUNNABLE)
+          continue;
+
+      //   if (check == 0){
+      //     low = p;
+      //     check = 1;
+      //   }
+      //   else{
+      //     if (p->calculatedPriority < low->calculatedPriority){
+      //       low = p; 
+      //     }
+      //   }
+      // }
+      // if (check == 0){
+      //   release(&ptable.lock);
+      //   continue;
+      // }
+      // p = low;
+
+
+        // Switch to chosen process.  It is the process's job
+        // to release ptable.lock and then reacquire it
+        // before jumping back to us.
+        c->proc = p;
+        switchuvm(p);
+        p->state = RUNNING;
+
+        swtch(&(c->scheduler), p->context);
+        switchkvm();
+
+        // Process is done running for now.
+        // It should have changed its p->state before coming back.
+        c->proc = 0;
+       }
+      release(&ptable.lock);
+    }
+
+  }
+}
+
+
+
+int getMode(){
+  return mode;
+}
+
+int changePolicy(int nPol){
+  if (nPol >= 0 && nPol <= 2){
+    mode = nPol;
+    cprintf("policy scheduling changed to %d\n" , nPol);
+    return 1;
+  }else
+  {
+    return -1;
+  }
+  
+}
+
+
+
+/*
+This is modified priority scheduler
+
+
+
+*/
+void myscheduler(struct cpu *c ){
+  struct proc *low ;
+  struct proc *p;
+  int check = 0;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state == RUNNABLE){
 
       if (check == 0){
         low = p;
@@ -381,35 +463,74 @@ scheduler(void)
       }
       else{
         if (p->calculatedPriority < low->calculatedPriority){
-          low = p; 
+           low = p; 
         }
       }
     }
-    if (check == 0){
-      release(&ptable.lock);
-      continue;
-    }
+  }
+  if (check == 0){
+    release(&ptable.lock);
+  }else{
     p = low;
 
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
+    // Switch to chosen process.  It is the process's job
+    // to release ptable.lock and then reacquire it
+    // before jumping back to us.
+    c->proc = p;
+    switchuvm(p);
+    p->state = RUNNING;
 
-      swtch(&(c->scheduler), p->context);
-      switchkvm();
+    swtch(&(c->scheduler), p->context);
+    switchkvm();
 
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
-      c->proc = 0;
+    // Process is done running for now.
+    // It should have changed its p->state before coming back.
+    c->proc = 0;
     // }
     release(&ptable.lock);
-
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores
