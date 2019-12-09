@@ -104,17 +104,40 @@ trap(struct trapframe *tf)
   // If interrupts were on while locks held, would need to check nlock.
   if(myproc() && myproc()->state == RUNNING &&
      tf->trapno == T_IRQ0+IRQ_TIMER ){
+      // acquire(&tickslock);
+
+
+        
+
+
+
+
+
+
+
+
     if (getMode() == 0){
+      // release(&tickslock);
+      myproc()->times.runningTime++;
       yield();
     }
     else{
       if (ticks%QUANTUM == 0){
+        // release(&tickslock);
+        myproc()->times.runningTime+=QUANTUM;
         yield();
+      }else
+      {
+        // release(&tickslock);
       }
+      
+
     }
     
 
   }
+
+
 
 
   // Check if the process has been killed since we yielded

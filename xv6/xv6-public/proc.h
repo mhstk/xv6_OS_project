@@ -32,6 +32,15 @@ struct context {
   uint eip;
 };
 
+
+struct timeVariables {
+  uint creationTime;
+  uint terminationTime;
+  uint sleepingTime;
+  uint readyTime;
+  uint runningTime;
+};
+
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
 // Per-process state
@@ -53,6 +62,8 @@ struct proc {
   int syscallCounter[40];      //counter for each syscall invoked by this process
   int priority;                //priority [1,5] , 1 most , 5 least
   long calculatedPriority;      //calcculatedPriority += priority
+
+  struct timeVariables times;
 
   
 };

@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "traps.h"
 
 struct {
   struct spinlock lock;
@@ -149,6 +150,14 @@ found:
     p->calculatedPriority = minCp;
   }
 
+
+
+// times in proc
+  p->times.creationTime = ticks;
+  p->times.readyTime = 0;
+  p->times.runningTime = 0;
+  p->times.sleepingTime = 0;
+  p->times.terminationTime = 0;
 
   release(&ptable.lock);
 
@@ -304,6 +313,8 @@ exit(void)
     }
   }
 
+  curproc->times.terminationTime = ticks;
+
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
   sched();
@@ -404,6 +415,24 @@ scheduler(void)
       // p = low;
 
 
+        struct proc *k;
+        for(k = ptable.proc; k < &ptable.proc[NPROC]; k++){
+          if( k->state == RUNNABLE  && k != p){
+            if(mode == 1)
+              k->times.readyTime += QUANTUM;
+            else
+              k->times.readyTime++;
+            
+          }
+          if (k->state == SLEEPING){
+            if(mode == 1)
+              k->times.sleepingTime += QUANTUM;
+            else
+              k->times.sleepingTime++;
+          }
+        }
+
+
         // Switch to chosen process.  It is the process's job
         // to release ptable.lock and then reacquire it
         // before jumping back to us.
@@ -480,7 +509,17 @@ void myscheduler(struct cpu *c ){
   }else{
     p = low;
 
+    struct proc *k;
+    for(k = ptable.proc; k < &ptable.proc[NPROC]; k++){
+      if( k->state == RUNNABLE  && k != p){
+        k->times.readyTime += QUANTUM;
+      }
+      if (k->state == SLEEPING)
+        k->times.sleepingTime += QUANTUM;
 
+    }
+
+    
     // Switch to chosen process.  It is the process's job
     // to release ptable.lock and then reacquire it
     // before jumping back to us.
@@ -634,6 +673,7 @@ wakeup1(void *chan)
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->state == SLEEPING && p->chan == chan)
       p->state = RUNNABLE;
+      
 }
 
 // Wake up all processes sleeping on chan.
@@ -735,21 +775,21 @@ pprc(void)
 {
   struct proc *p;
 
-  cprintf("name\tpid\tstate\t\tpriority\tcalculatedPriority\n");
+  cprintf("name\tpid\tstate\t\tpri\tcalP\tcTime\truTime\treTime\n");
 
   acquire(&ptable.lock);
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->state != UNUSED){
       if (p->state == RUNNING)
-        cprintf("%s\t%d\t%s\t\t%d\t\t%d\n", p->name , p->pid, "RUNNING",p->priority,p->calculatedPriority);
+        cprintf("%s\t%d\t%s\t\t%d\t%d\t%d\t%d\t%d\n", p->name , p->pid, "RUNNING",p->priority,p->calculatedPriority, p->times.creationTime, p->times.runningTime, p->times.readyTime);
       if (p->state == RUNNABLE)
-        cprintf("%s\t%d\t%s\t%d\t\t%d\n", p->name , p->pid, "RUNNABLE",p->priority,p->calculatedPriority);
+        cprintf("%s\t%d\t%s\t%d\t%d\t%d\t%d\t%d\n", p->name , p->pid, "RUNNABLE",p->priority,p->calculatedPriority, p->times.creationTime, p->times.runningTime, p->times.readyTime);
       if (p->state == SLEEPING)
-        cprintf("%s\t%d\t%s\t%d\t\t%d\n", p->name , p->pid, "SLEEPING",p->priority,p->calculatedPriority); 
+        cprintf("%s\t%d\t%s\t%d\t%d\t%d\t%d\t%d\n", p->name , p->pid, "SLEEPING",p->priority,p->calculatedPriority, p->times.creationTime, p->times.runningTime, p->times.readyTime); 
       if (p->state == ZOMBIE)
-        cprintf("%s\t%d\t%s\t%d\t\t%d\n", p->name , p->pid, "ZOMBIE",p->priority,p->calculatedPriority);
+        cprintf("%s\t%d\t%s\t%d\t%d\t%d\t%d\t%d\n", p->name , p->pid, "ZOMBIE",p->priority,p->calculatedPriority, p->times.creationTime, p->times.runningTime, p->times.readyTime);
       if (p->state == EMBRYO)
-        cprintf("%s\t%d\t%s\t%d\t\t%d\n", p->name , p->pid, "EMBRYO",p->priority,p->calculatedPriority);
+        cprintf("%s\t%d\t%s\t%d\t%d\t%d\t%d\t%d\n", p->name , p->pid, "EMBRYO",p->priority,p->calculatedPriority, p->times.creationTime, p->times.runningTime, p->times.readyTime);
     }
   }
   release(&ptable.lock);
