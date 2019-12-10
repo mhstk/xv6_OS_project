@@ -9,6 +9,7 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
+struct timeVariables;
 
 // bio.c
 void            binit(void);
@@ -128,6 +129,7 @@ int            getChildren(int);
 int		pprc(void);
 int		changePriority(int,int);
 int		changePolicy(int);
+int		waitForChild(struct timeVariables*);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

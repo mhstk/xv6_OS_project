@@ -32,7 +32,6 @@ struct context {
   uint eip;
 };
 
-
 struct timeVariables {
   uint creationTime;
   uint terminationTime;

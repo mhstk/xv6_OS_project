@@ -163,3 +163,15 @@ sys_changePolicy(void)
     return -1;
   return changePolicy(nPol);
 }
+
+int
+sys_waitForChild(void)
+{
+  struct timeVariables *t;
+
+  if(argptr(0, (void *)&t ,sizeof(*t)) < 0)
+    return -1;
+  return waitForChild(t);
+}
+
+

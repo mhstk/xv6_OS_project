@@ -1,5 +1,6 @@
 struct stat;
 struct rtcdate;
+struct timeVariables;
 
 // system calls
 int fork(void);
@@ -29,6 +30,8 @@ int getCount(int);
 int pprc(void);
 int changePriority(int, int);
 int changePolicy(int);
+int waitForChild(struct timeVariables*);
+
 
 
 // ulib.c

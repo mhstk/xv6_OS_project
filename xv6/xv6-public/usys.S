@@ -35,3 +35,5 @@ SYSCALL(getCount)
 SYSCALL(pprc)
 SYSCALL(changePriority)
 SYSCALL(changePolicy)
+SYSCALL(waitForChild)
+
