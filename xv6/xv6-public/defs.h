@@ -130,6 +130,7 @@ int		pprc(void);
 int		changePriority(int,int);
 int		changePolicy(int);
 int		waitForChild(struct timeVariables*);
+void		checkTime();
 
 // swtch.S
 void            swtch(struct context**, struct context*);

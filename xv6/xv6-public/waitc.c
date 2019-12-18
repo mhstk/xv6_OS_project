@@ -33,7 +33,7 @@ main(int argc, char **argv)
     }else if (id == 0){
         int i=0;
         float dummy = 1.0;
-        for (i=0;i<10000000000;i++){
+        for (i=0;i<10000000;i++){
             dummy += 3.14 * i * i;
         }
         exit();

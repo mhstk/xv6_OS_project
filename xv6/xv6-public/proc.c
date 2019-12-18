@@ -15,6 +15,7 @@ struct {
 
 static struct proc *initproc;
 
+
 int nextpid = 1;
 
 //
@@ -153,7 +154,11 @@ found:
 
 
 // times in proc
-  p->times.creationTime = ticks;
+  if (mode == 0)
+    p->times.creationTime = ticks;
+  else
+    p->times.creationTime = (ticks/QUANTUM) * QUANTUM;
+  
   p->times.readyTime = 0;
   p->times.runningTime = 0;
   p->times.sleepingTime = 0;
@@ -313,7 +318,11 @@ exit(void)
     }
   }
 
-  curproc->times.terminationTime = ticks;
+  if (mode == 0){
+    curproc->times.terminationTime = ticks;
+
+  }else
+    curproc->times.terminationTime = (ticks/QUANTUM) * QUANTUM;
 
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
@@ -376,7 +385,7 @@ wait(void)
 void
 scheduler(void)
 {
-  struct proc *p;
+  struct proc *p =  ptable.proc;
   struct cpu *c = mycpu();
   c->proc = 0;
   
@@ -398,39 +407,8 @@ scheduler(void)
         if(p->state != RUNNABLE)
           continue;
 
-      //   if (check == 0){
-      //     low = p;
-      //     check = 1;
-      //   }
-      //   else{
-      //     if (p->calculatedPriority < low->calculatedPriority){
-      //       low = p; 
-      //     }
-      //   }
-      // }
-      // if (check == 0){
-      //   release(&ptable.lock);
-      //   continue;
-      // }
-      // p = low;
-
-
-        struct proc *k;
-        for(k = ptable.proc; k < &ptable.proc[NPROC]; k++){
-          if( k->state == RUNNABLE  && k != p){
-            if(mode == 1)
-              k->times.readyTime += QUANTUM;
-            else
-              k->times.readyTime++;
-            
-          }
-          if (k->state == SLEEPING){
-            if(mode == 1)
-              k->times.sleepingTime += QUANTUM;
-            else
-              k->times.sleepingTime++;
-          }
-        }
+        
+        // p->times.runningTime++;
 
 
         // Switch to chosen process.  It is the process's job
@@ -446,10 +424,11 @@ scheduler(void)
         // Process is done running for now.
         // It should have changed its p->state before coming back.
         c->proc = 0;
+
        }
+      
       release(&ptable.lock);
     }
-
   }
 }
 
@@ -459,6 +438,30 @@ scheduler(void)
 // getter for mode
 int getMode(){
   return mode;
+}
+
+void checkTime(){
+  struct proc *k;
+  for(k = ptable.proc; k < &ptable.proc[NPROC]; k++){
+    if( k->state == RUNNABLE ){
+      if(mode != 0 ){
+        if(ticks % QUANTUM == 0){
+          k->times.readyTime += QUANTUM;
+        }
+      }else
+        k->times.readyTime++;
+      
+    }
+    if (k->state == SLEEPING){
+      if(mode != 0 ){
+        if(ticks % QUANTUM == 0){
+          k->times.readyTime += QUANTUM;
+        }
+      }
+      else
+        k->times.sleepingTime++;
+    }
+  }
 }
 
 
@@ -509,15 +512,15 @@ void myscheduler(struct cpu *c ){
   }else{
     p = low;
 
-    struct proc *k;
-    for(k = ptable.proc; k < &ptable.proc[NPROC]; k++){
-      if( k->state == RUNNABLE  && k != p){
-        k->times.readyTime += QUANTUM;
-      }
-      if (k->state == SLEEPING)
-        k->times.sleepingTime += QUANTUM;
+    // struct proc *k;
+    // for(k = ptable.proc; k < &ptable.proc[NPROC]; k++){
+    //   if( k->state == RUNNABLE  && k->pid != p->pid){
+    //     k->times.readyTime += QUANTUM;
+    //   }
+    //   if (k->state == SLEEPING)
+    //     k->times.sleepingTime += QUANTUM;
 
-    }
+    // }
 
     
     // Switch to chosen process.  It is the process's job
