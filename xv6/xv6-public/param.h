@@ -15,4 +15,4 @@
 
 
 
-#define QUANTUM		10 // quantom
+#define QUANTUM		1 // quantom

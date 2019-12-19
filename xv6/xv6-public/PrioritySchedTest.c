@@ -45,8 +45,6 @@ main(int argc, char **argv)
             int num = getpid() - getppid();
             if (num <= 5){
                 changePriority(getpid() , 5);
-
-
             }
             if (num > 5 && num <= 10){
                 changePriority(getpid() , 4);
