@@ -36,4 +36,6 @@ SYSCALL(pprc)
 SYSCALL(changePriority)
 SYSCALL(changePolicy)
 SYSCALL(waitForChild)
+SYSCALL(ticketlockinit)
+SYSCALL(ticketlocktest)
 

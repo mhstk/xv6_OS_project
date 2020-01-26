@@ -110,6 +110,9 @@ extern int sys_pprc(void);
 extern int sys_changePriority(void);
 extern int sys_changePolicy(void);
 extern int sys_waitForChild(void);
+extern int sys_ticketlockinit(void);
+extern int sys_ticketlocktest(void);
+
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -140,7 +143,8 @@ static int (*syscalls[])(void) = {
 [SYS_changePriority]	sys_changePriority,
 [SYS_changePolicy]	sys_changePolicy,
 [SYS_waitForChild]	sys_waitForChild,
-
+[SYS_ticketlockinit]	sys_ticketlockinit,
+[SYS_ticketlocktest]	sys_ticketlocktest
 
 };
 

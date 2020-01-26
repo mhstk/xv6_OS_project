@@ -190,6 +190,7 @@ UPROGS=\
 	_waitc\
 	_OriginalSchedTest\
         _PrioritySchedTest\
+	_ticketTest\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

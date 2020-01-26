@@ -15,4 +15,4 @@
 
 
 
-#define QUANTUM		1 // quantom
+#define QUANTUM		1000 // quantom

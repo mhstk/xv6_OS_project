@@ -6,12 +6,21 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "ticketlock.h"
 #include "traps.h"
+#include "ticketlock.c"
+
 
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
 } ptable;
+
+struct ticketlock tlock ;
+
+
+
+
 
 static struct proc *initproc;
 
@@ -20,7 +29,7 @@ int nextpid = 1;
 
 //
 
-int mode=0;    // mode for policy: 0 for default. 1 for modified xv6. 2 for prority.
+int mode=0;    // mode for schedulepolicy: 0 for default. 1 for modified xv6. 2 for prority.
 
 //
 extern void forkret(void);
@@ -868,3 +877,18 @@ waitForChild(struct timeVariables *t)
   }
 }
 
+
+int ticketlockinit(void){
+
+  initlockT(&tlock, "ticketlocktest");
+  return 1;
+
+}
+
+int ticketlocktest(void){
+  acquireT(&tlock);
+  cprintf("got ticket pid : %d\tcurrticket: %d\tlasTicket: %d\n", myproc()->pid, tlock.currTicket, tlock.lastTicket);
+  releaseT(&tlock);
+  return tlock.currTicket;
+  // return 1;
+}

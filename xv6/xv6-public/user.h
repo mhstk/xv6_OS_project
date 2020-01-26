@@ -31,7 +31,8 @@ int pprc(void);
 int changePriority(int, int);
 int changePolicy(int);
 int waitForChild(struct timeVariables*);
-
+int ticketlockinit(void);
+int ticketlocktest(void);
 
 
 // ulib.c

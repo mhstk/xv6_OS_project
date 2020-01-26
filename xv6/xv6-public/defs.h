@@ -6,6 +6,7 @@ struct pipe;
 struct proc;
 struct rtcdate;
 struct spinlock;
+struct ticketlock;
 struct sleeplock;
 struct stat;
 struct superblock;
@@ -132,6 +133,9 @@ int		changePolicy(int);
 int		waitForChild(struct timeVariables*);
 void		checkTime();
 
+int             ticketlockinit(void);
+int             ticketlocktest(void);
+
 // swtch.S
 void            swtch(struct context**, struct context*);
 
@@ -143,6 +147,18 @@ void            initlock(struct spinlock*, char*);
 void            release(struct spinlock*);
 void            pushcli(void);
 void            popcli(void);
+
+
+// ticketlock.c
+void            acquireT(struct ticketlock*);
+// void            getcallerpcs(void*, uint*);
+int             holdingT(struct ticketlock*);
+void            initlockT(struct ticketlock*, char*);
+void            releaseT(struct ticketlock*);
+// void            pushcli(void);
+// void            popcli(void);
+
+
 
 // sleeplock.c
 void            acquiresleep(struct sleeplock*);

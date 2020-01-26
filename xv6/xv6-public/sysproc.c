@@ -174,4 +174,16 @@ sys_waitForChild(void)
   return waitForChild(t);
 }
 
+int
+sys_ticketlockinit(void)
+{
+  
+  return ticketlockinit();
+}
+
+int
+sys_ticketlocktest(void)
+{
+  return ticketlocktest();
+}
 
