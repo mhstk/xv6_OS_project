@@ -186,4 +186,22 @@ sys_ticketlocktest(void)
 {
   return ticketlocktest();
 }
+int
+sys_rwinit(void)
+{
+
+  return rwinit();
+}
+
+int
+sys_rwtest(void)
+{
+  int pattern;
+
+  if(argint(0, &pattern) < 0)
+    return -1;
+
+  return rwtest(pattern);
+}
+
 

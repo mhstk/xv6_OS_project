@@ -29,5 +29,6 @@
 #define SYS_waitForChild 28
 #define SYS_ticketlockinit 29
 #define SYS_ticketlocktest 30
-
+#define SYS_rwinit 31
+#define SYS_rwtest 32
 

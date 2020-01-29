@@ -23,11 +23,11 @@ acquireT(struct ticketlock *lk)
   if(holdingT(lk))
     panic("acquire");
 
-
+  // cprintf("acquire %s by %d\n", lk->name, myproc()->pid);
   // The xchg is atomic.
   uint ticket;
   ticket = fetch_and_add2(&lk->lastTicket, 1);
-  // cprintf("ticket:%d\tcurrTicket:%d\tlasTicket:%d\n" , ticket, lk->currTicket, lk->lastTicket);
+  // cprintf("pro %d: ticket %d\n" , myproc()->parent->pid, ticket);
 
 //   while(xchg(&lk->locked, 1) != 0)
 //     ;
@@ -77,6 +77,10 @@ releaseT(struct ticketlock *lk)
 
   fetch_and_add(&lk->currTicket, 1);
 //   asm volatile("movl $0, %0" : "+m" (lk->locked) : );
+
+
+// cprintf("released %s by %d\n", lk->name, myproc()->pid);
+
 
   popcli();
 }

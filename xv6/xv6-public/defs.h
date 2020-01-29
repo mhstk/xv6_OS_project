@@ -135,6 +135,8 @@ void		checkTime();
 
 int             ticketlockinit(void);
 int             ticketlocktest(void);
+int             rwinit(void);
+int             rwtest(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

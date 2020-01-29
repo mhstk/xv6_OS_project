@@ -20,6 +20,11 @@ struct ticketlock tlock ;
 
 
 
+struct ticketlock rwlock;
+struct ticketlock mutex;
+int rwVariableTest = 0;
+int countReaders = 0;
+
 
 
 static struct proc *initproc;
@@ -891,4 +896,48 @@ int ticketlocktest(void){
   releaseT(&tlock);
   return tlock.currTicket;
   // return 1;
+}
+
+
+
+int rwinit(void){
+  initlockT(&rwlock, "rwlock");
+  initlockT(&mutex, "mutex");
+  return 1;
+}
+
+
+int rwtest(int x){
+
+
+ if (x == 0){
+ acquireT(&mutex);
+ countReaders++;
+ if (countReaders == 1){
+   acquireT(&rwlock);
+ }
+ releaseT(&mutex);
+
+ int temp = rwVariableTest;
+
+ acquireT(&mutex);
+ countReaders --;
+ if (countReaders == 0){
+   releaseT(&rwlock);
+ }
+ releaseT(&mutex);
+
+ return temp;
+
+
+ }else if (x == 1){
+
+ acquireT(&rwlock);
+ rwVariableTest ++;
+ releaseT(&rwlock);
+
+ return 1;
+
+ }
+ return -1;
 }

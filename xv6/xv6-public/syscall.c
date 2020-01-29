@@ -112,6 +112,8 @@ extern int sys_changePolicy(void);
 extern int sys_waitForChild(void);
 extern int sys_ticketlockinit(void);
 extern int sys_ticketlocktest(void);
+extern int sys_rwinit(void);
+extern int sys_rwtest(void);
 
 
 static int (*syscalls[])(void) = {
@@ -144,7 +146,9 @@ static int (*syscalls[])(void) = {
 [SYS_changePolicy]	sys_changePolicy,
 [SYS_waitForChild]	sys_waitForChild,
 [SYS_ticketlockinit]	sys_ticketlockinit,
-[SYS_ticketlocktest]	sys_ticketlocktest
+[SYS_ticketlocktest]	sys_ticketlocktest,
+[SYS_rwinit]	sys_rwinit,
+[SYS_rwtest]	sys_rwtest,
 
 };
 
