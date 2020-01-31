@@ -16,14 +16,10 @@ int sumOfEvenDigits(char s[]){
 int main(){
 
     int fd[2]; 
-
-
-    char input[100];
-
+    int fd2[2]; 
 
 
 
-    scanf("%s" , input) ;
 
 
 
@@ -35,13 +31,25 @@ int main(){
         printf("Pipe Failed\n" ); 
         return 1; 
     } 
+    if (pipe(fd2)==-1) 
+    { 
+        printf("Pipe Failed\n" ); 
+        return 1; 
+    } 
 
 
     int pid = fork();
     if (pid == 0){ // child
         
+        char input[100];
         char ans[100];
         char buff[150] = "The sum of even digits in the input number :";
+
+        close(fd[1]);
+        read(fd[0] , input , 100);
+        close(fd[0]);
+
+
  
         //save answer (int) to  a string (ans[])
         
@@ -64,20 +72,36 @@ int main(){
             k++;
         }
 
-        close(fd[0]);
+        close(fd2[0]);
 
-        write(fd[1] , buff, 150);
-        close(fd[1]);
+        write(fd2[1] , buff, 150);
+        close(fd2[1]);
 
         exit(0);
             
     }else if (pid > 0){ //parent
-        char final[100];
-        wait(NULL);
+
+        char input[100];
+
+        scanf("%s" , input) ;
+
         
 
-        read( fd[0] , final , 150);
+
         close(fd[0]);
+        write(fd[1] , input , strlen(input)+1);
+
+        close(fd[1]);
+
+
+
+        wait(NULL);
+        char final[100];
+        
+        close(fd2[1]);
+
+        read( fd2[0] , final , 150);
+        close(fd2[0]);
 
         printf("%s\n" , final);
         return(0);
