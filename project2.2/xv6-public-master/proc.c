@@ -337,8 +337,6 @@ fork(void)
 
   // Copy process state from proc.
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
-          cprintf("S@");
-
     kfree(nt->kstack);
     nt->kstack = 0;
     nt->state = UNUSED;
@@ -388,7 +386,7 @@ void
 exit(void)
 {
   struct proc *curproc = myproc();
-  struct thread *curthread = mythread();
+  // struct thread *curthread = mythread();
   struct thread *t;
   struct proc *p;
   int fd;
@@ -430,7 +428,13 @@ exit(void)
   }
 
   // Jump into the scheduler, never to return.
-  curthread->state = ZOMBIE;
+  acquire(&(curproc->threads.lock));
+  for (t = curproc->threads.threads; t < &curproc->threads.threads[MAX_THREADS]; t++){
+    if (t->state != UNUSED){
+      t->state = ZOMBIE;
+    }
+  }
+  release(&(curproc->threads.lock));
   // cprintf("sched before exit\n");
   sched();
   panic("zombie exit");
@@ -445,6 +449,7 @@ wait(void)
   struct thread *t;
   int havekids, pid;
   struct proc *curproc = myproc();
+  struct thread *curthread = mythread();
   // struct thread *curthread = mythread();
   
   acquire(&ptable.lock);
@@ -452,7 +457,7 @@ wait(void)
     // Scan through table looking for exited children.
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->parent != curproc)
+      if(p->parent != curproc || p->tparent != curthread)
         continue;
       havekids = 1;
     // cprintf("F\n");
@@ -460,15 +465,19 @@ wait(void)
       acquire(&(p->threads.lock));
       int found = 0;
       for(t = p->threads.threads; t < &p->threads.threads[MAX_THREADS]; t++){
-        if (t->state != ZOMBIE){
-          // found = 0;
-          break;
-        }
+        if (t->state != UNUSED){
+          if (t->state != ZOMBIE){
+            found = 0;
+            break;
+          }
         found = 1;
+        }
       }
       release(&(p->threads.lock));
       if(found == 1){
         // Found one.
+
+    // cprintf("G\n");
         pid = p->pid;
         freevm(p->pgdir);
         p->pid = 0;
@@ -476,21 +485,24 @@ wait(void)
         p->name[0] = 0;
         p->killed = 0;
         p->status = 0;
-    // cprintf("G\n");
 
         acquire(&(p->threads.lock));
         // t = &p->threads.threads[0];
         // kfree(t->kstack);
         // t->kstack = 0;
         // t->state = UNUSED;
-        for(t = p->threads.threads; t < &p->threads.threads[MAX_THREADS]; t++){\
+        for(t = p->threads.threads; t < &p->threads.threads[MAX_THREADS]; t++){
           if (t->state != UNUSED){
+            // cprintf("hhhhhh\n");
             kfree(t->kstack);
             t->kstack = 0;
             t->state = UNUSED;
           }
         }
+        // cprintf("aaaa\n");
         release(&(p->threads.lock));
+
+        
         
 
         release(&ptable.lock);
@@ -551,6 +563,7 @@ scheduler(void)
 
         release(&p->threads.lock);
         switchuvm(t);
+      
         t->state = RUNNING;
 
         swtch(&(c->scheduler), t->context);
