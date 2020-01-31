@@ -91,3 +91,39 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+
+
+
+int
+sys_createThread(void)
+{
+  return createThread();
+}
+
+
+int
+sys_joinThread(void)
+{
+
+  return joinThread();
+}
+
+
+
+int
+sys_exitThread(void)
+{
+
+  exitThread();
+  return 1;
+}
+
+
+
+int
+sys_getThreadID(void)
+{
+  return getThreadID();
+}
+

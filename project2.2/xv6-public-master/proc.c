@@ -109,6 +109,7 @@ allocthread(struct proc *p)
   }
 
   t->state = EMBRYO;
+  // cprintf("inAllocthread\n");
   t->tid = nexttid++;
   t->proc = p;
 
@@ -370,11 +371,11 @@ fork(void)
   // release(&ptable.lock);
 
 
-  // acquire(&(np->threads.lock));
+  acquire(&(np->threads.lock));
 
   nt->state = RUNNABLE;
 
-  // release(&(np->threads.lock));
+  release(&(np->threads.lock));
 
   return pid;
 }
@@ -563,7 +564,7 @@ scheduler(void)
 
         release(&p->threads.lock);
         switchuvm(t);
-      
+        // cprintf("%d\n" , t->tid);
         t->state = RUNNING;
 
         swtch(&(c->scheduler), t->context);
@@ -796,4 +797,271 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+
+int
+createThread(void)
+{
+  // int i, pid;
+  // struct proc *np;
+  struct thread *nt;
+  struct proc *curproc = myproc();
+  struct thread *curthread = mythread();
+
+  void (*function)();
+  void *stack;
+  int tid;
+
+  argptr(0 , (void*)&function, sizeof(*function));
+  argptr(1 , (void*)&stack, sizeof(*stack));
+
+
+  // Allocate process.
+  if((nt = allocthread(curproc)) == 0){
+    return -1;
+  }
+
+  // cprintf("in createThread nexttid : %d\n" , nexttid);
+
+  // acquire(&(np->threads.lock));
+  // nt = &(np->threads.threads[0]);
+  // release(&(np->threads.lock));
+
+
+  // Copy process state from proc.
+  // if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
+  //   kfree(nt->kstack);
+  //   nt->kstack = 0;
+  //   nt->state = UNUSED;
+  //   return -1;
+  // }
+  // np->sz = curproc->sz;
+  // np->parent = curproc;
+  // np->tparent = curthread;  
+  *nt->tf = *curthread->tf;
+
+
+
+  nt->tf->eip = (uint)function;
+  nt->tf->esp = (uint)stack;
+  
+
+
+  // Clear %eax so that fork returns 0 in the child.
+  nt->tf->eax = 0;
+
+  // for(i = 0; i < NOFILE; i++)
+  //   if(curproc->ofile[i])
+  //     np->ofile[i] = filedup(curproc->ofile[i]);
+  // np->cwd = idup(curproc->cwd);
+
+  // safestrcpy(np->name, curproc->name, sizeof(curproc->name));
+
+
+
+
+  tid = nt->tid;
+
+
+  // tid = nt->tid;
+
+  // acquire(&ptable.lock);
+
+  // np->status = RUNNABLE;
+
+  // release(&ptable.lock);
+
+
+  acquire(&(curproc->threads.lock));
+
+  nt->state = RUNNABLE;
+
+  release(&(curproc->threads.lock));
+
+
+
+  return tid;
+}
+
+int
+joinThread(void)
+{
+
+  
+  // struct proc *p;
+  struct thread *t;
+  // int havekids, pid;
+  int havefound = 0;
+  
+  struct proc *curproc = myproc();
+  struct thread *curthread = mythread();
+
+  int threadID;
+
+  argint(0 , &threadID);
+
+
+  // struct thread *curthread = mythread();
+  
+  acquire(&ptable.lock);
+  for(;;){
+    // Scan through table looking for exited children.
+    // havekids = 0;
+    // for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      // if(p->parent != curproc || p->tparent != curthread)
+        // continue;
+      // havekids = 1;
+    // cprintf("F\n");
+
+      acquire(&(curproc->threads.lock));
+      int inzombie = 0;
+      for(t = curproc->threads.threads; t < &curproc->threads.threads[MAX_THREADS]; t++){
+        if (t->tid == threadID){
+          havefound = 1;
+          if (t->state == ZOMBIE){
+            inzombie = 1;
+            break;
+          }
+        }
+      }
+      release(&(curproc->threads.lock));
+      if(inzombie == 1){
+        // Found one.
+
+    // cprintf("G\n");
+        // pid = p->pid;
+        // freevm(p->pgdir);
+        // p->pid = 0;
+        // p->parent = 0;
+        // p->name[0] = 0;
+        // p->killed = 0;
+        // p->status = 0;
+
+        acquire(&(curproc->threads.lock));
+        // t = &p->threads.threads[0];
+        // kfree(t->kstack);
+        // t->kstack = 0;
+        // t->state = UNUSED;
+        // for(t = p->threads.threads; t < &p->threads.threads[MAX_THREADS]; t++){
+          // if (t->state != UNUSED){
+            // cprintf("hhhhhh\n");
+        kfree(t->kstack);
+        t->kstack = 0;
+        t->state = UNUSED;
+          // }
+        // }
+        // cprintf("aaaa\n");
+        release(&(curproc->threads.lock));
+
+
+        release(&ptable.lock);
+        return 0;
+      }else{
+
+        sleep(curthread, &ptable.lock);
+      }
+
+    if (havefound == 0){
+        release(&ptable.lock);
+        return -1;
+    }
+  }
+}
+
+
+void
+exitThread(void)
+{
+
+  // cprintf("qqqqqqqqqq\n");  
+
+  struct proc *curproc = myproc();
+  struct thread *curthread = mythread();
+  struct thread *t;
+  // struct proc *p;
+  // int fd;
+
+  if(curproc == initproc)
+    panic("init exiting");
+
+  int found = 1;
+  acquire(&(curproc->threads.lock));
+  for (t = curproc->threads.threads; t < &curproc->threads.threads[MAX_THREADS]; t++){
+    if (t != curthread){
+      if (t->state != ZOMBIE){
+        found = 0;
+        break;
+      }
+    }
+  }
+  release(&(curproc->threads.lock));
+
+  if (found == 1){
+    exit();
+  }else{
+
+
+
+    // Close all open files.
+    // for(fd = 0; fd < NOFILE; fd++){
+    //   if(curproc->ofile[fd]){
+    //     fileclose(curproc->ofile[fd]);
+    //     curproc->ofile[fd] = 0;
+    //   }
+    // }
+
+    // begin_op();
+    // iput(curproc->cwd);
+    // end_op();
+    // curproc->cwd = 0;
+
+    acquire(&ptable.lock);
+
+    // Parent might be sleeping in wait().
+
+
+    // acquire(&(curproc->threads.lock));
+    for (t = curproc->threads.threads; t < &curproc->threads.threads[MAX_THREADS]; t++){
+      wakeup1(t);
+    }
+    // release(&(curproc->threads.lock));
+
+
+    // Pass abandoned children to init.
+    // for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    //   if(p->parent == curproc){
+    //     p->parent = initproc;
+    //   // cprintf("E\n");
+
+    //     acquire(&(p->threads.lock));
+    //     for (t = p->threads.threads; t < &p->threads.threads[MAX_THREADS]; t++){
+    //       if (t->state == ZOMBIE)
+    //       wakeup1(initproc);
+    //     }
+    
+    //   }
+    // }
+
+    // Jump into the scheduler, never to return.
+    acquire(&(curproc->threads.lock));
+    // for (t = curproc->threads.threads; t < &curproc->threads.threads[MAX_THREADS]; t++){
+    //   if (t->state != UNUSED){
+    //     t->state = ZOMBIE;
+    //   }
+    // }
+    curthread->state = ZOMBIE;
+
+    release(&(curproc->threads.lock));
+    // cprintf("sched before exit\n");
+    sched();
+    panic("zombie exit");
+  }
+}
+
+
+
+
+int getThreadID(void){
+  return mythread()->tid;
 }

@@ -171,7 +171,9 @@ found:
   if (mode == 0)
     p->times.creationTime = ticks;
   else
-    p->times.creationTime = (ticks/QUANTUM) * QUANTUM;
+    // p->times.creationTime = (ticks/QUANTUM) * QUANTUM;
+    p->times.creationTime = ticks;
+
   
   p->times.readyTime = 0;
   p->times.runningTime = 0;
@@ -336,7 +338,9 @@ exit(void)
     curproc->times.terminationTime = ticks;
 
   }else
-    curproc->times.terminationTime = (ticks/QUANTUM) * QUANTUM;
+    // curproc->times.terminationTime = (ticks/QUANTUM) * QUANTUM;
+    curproc->times.terminationTime = ticks;
+
 
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
@@ -460,8 +464,10 @@ void checkTime(){
     if( k->state == RUNNABLE ){
       if(mode != 0 ){
         if(ticks % QUANTUM == 0){
-          k->times.readyTime += QUANTUM;
+          // k->times.readyTime += QUANTUM;
         }
+        k->times.readyTime++;
+
       }else
         k->times.readyTime++;
       
@@ -469,8 +475,10 @@ void checkTime(){
     if (k->state == SLEEPING){
       if(mode != 0 ){
         if(ticks % QUANTUM == 0){
-          k->times.readyTime += QUANTUM;
+          // k->times.sleepingTime += QUANTUM;
         }
+        k->times.sleepingTime++;
+
       }
       else
         k->times.sleepingTime++;

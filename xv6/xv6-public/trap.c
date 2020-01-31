@@ -111,9 +111,11 @@ trap(struct trapframe *tf)
       yield();
     }
     else{ 
+      myproc()->times.runningTime+=1;
       if (ticks%QUANTUM == 0){
+      // myproc()->times.runningTime+=1;
 
-        myproc()->times.runningTime+=QUANTUM;
+        
         yield();
       }
       

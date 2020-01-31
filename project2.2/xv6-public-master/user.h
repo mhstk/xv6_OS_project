@@ -23,6 +23,10 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int createThread(void*, void*);
+int joinThread(int);
+void exitThread(void);
+int getThreadID(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

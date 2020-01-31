@@ -120,6 +120,11 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
+int             createThread(void);
+int             joinThread(void);
+void            exitThread(void);
+int             getThreadID(void);
+
 
 struct thread*  mythread(void);
 
