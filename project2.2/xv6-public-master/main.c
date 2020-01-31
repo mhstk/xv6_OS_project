@@ -1,4 +1,5 @@
 #include "types.h"
+#include "spinlock.h"
 #include "defs.h"
 #include "param.h"
 #include "memlayout.h"

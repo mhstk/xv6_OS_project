@@ -3,6 +3,7 @@
 // http://developer.intel.com/design/pentium/datashts/24201606.pdf
 
 #include "types.h"
+#include "spinlock.h"
 #include "defs.h"
 #include "param.h"
 #include "memlayout.h"

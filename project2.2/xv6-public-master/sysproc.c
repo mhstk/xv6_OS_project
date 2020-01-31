@@ -1,5 +1,6 @@
 #include "types.h"
 #include "x86.h"
+#include "spinlock.h"
 #include "defs.h"
 #include "date.h"
 #include "param.h"
@@ -71,6 +72,7 @@ sys_sleep(void)
       release(&tickslock);
       return -1;
     }
+    cprintf("in trap\n");
     sleep(&ticks, &tickslock);
   }
   release(&tickslock);

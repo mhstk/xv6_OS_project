@@ -1,4 +1,5 @@
 #include "types.h"
+#include "spinlock.h"
 #include "defs.h"
 #include "param.h"
 #include "memlayout.h"
@@ -6,7 +7,6 @@
 #include "proc.h"
 #include "x86.h"
 #include "traps.h"
-#include "spinlock.h"
 
 // Interrupt descriptor table (shared by all CPUs).
 struct gatedesc idt[256];
@@ -39,7 +39,7 @@ trap(struct trapframe *tf)
   if(tf->trapno == T_SYSCALL){
     if(myproc()->killed)
       exit();
-    myproc()->tf = tf;
+    mythread()->tf = tf;
     syscall();
     if(myproc()->killed)
       exit();
@@ -80,7 +80,7 @@ trap(struct trapframe *tf)
 
   //PAGEBREAK: 13
   default:
-    if(myproc() == 0 || (tf->cs&3) == 0){
+    if(myproc() == 0 || mythread() == 0|| (tf->cs&3) == 0){
       // In kernel, it must be our mistake.
       cprintf("unexpected trap %d from cpu %d eip %x (cr2=0x%x)\n",
               tf->trapno, cpuid(), tf->eip, rcr2());
@@ -97,12 +97,12 @@ trap(struct trapframe *tf)
   // Force process exit if it has been killed and is in user space.
   // (If it is still executing in the kernel, let it keep running
   // until it gets to the regular system call return.)
-  if(myproc() && myproc()->killed && (tf->cs&3) == DPL_USER)
+  if(myproc() &&  mythread()  && myproc()->killed && (tf->cs&3) == DPL_USER)
     exit();
 
   // Force process to give up CPU on clock tick.
   // If interrupts were on while locks held, would need to check nlock.
-  if(myproc() && myproc()->state == RUNNING &&
+  if(myproc()  && myproc()->status == 1 && mythread()->state == RUNNING &&
      tf->trapno == T_IRQ0+IRQ_TIMER)
     yield();
 

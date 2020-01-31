@@ -1,6 +1,7 @@
 // Simple PIO-based (non-DMA) IDE driver code.
 
 #include "types.h"
+#include "spinlock.h"
 #include "defs.h"
 #include "param.h"
 #include "memlayout.h"
@@ -8,7 +9,6 @@
 #include "proc.h"
 #include "x86.h"
 #include "traps.h"
-#include "spinlock.h"
 #include "sleeplock.h"
 #include "fs.h"
 #include "buf.h"

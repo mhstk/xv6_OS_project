@@ -1,3 +1,5 @@
+
+
 // Per-CPU state
 struct cpu {
   uchar apicid;                // Local APIC ID
@@ -8,6 +10,8 @@ struct cpu {
   int ncli;                    // Depth of pushcli nesting.
   int intena;                  // Were interrupts enabled before pushcli?
   struct proc *proc;           // The process running on this cpu or null
+
+  struct thread *thread;       // The thread running on thid cpu or null
 };
 
 extern struct cpu cpus[NCPU];
@@ -34,17 +38,49 @@ struct context {
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
+struct thread {
+  char *kstack;                // Bottom of kernel stack for this process
+  enum procstate state;        // Process state
+  struct trapframe *tf;        // Trap frame for current syscall
+  struct context *context;     // swtch() here to run process
+  void *chan;                  // If non-zero, sleeping on chan
+
+
+  struct proc *proc;            // process that has this thread
+  int tid;                      // thread id
+
+
+};
+
+
+// array of threads and a spinlock for control them
+struct proc_threads{
+  struct spinlock lock;
+  struct thread threads[MAX_THREADS];
+};
+
+
+
+
+
+
+
 // Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
   pde_t* pgdir;                // Page table
-  char *kstack;                // Bottom of kernel stack for this process
-  enum procstate state;        // Process state
+
+
+  int status;                  //can be used=1, or unused=0
+
+
   int pid;                     // Process ID
   struct proc *parent;         // Parent process
-  struct trapframe *tf;        // Trap frame for current syscall
-  struct context *context;     // swtch() here to run process
-  void *chan;                  // If non-zero, sleeping on chan
+  struct thread *tparent;      // thread in parent proc that created this process
+
+
+  struct proc_threads threads; // threads of this process
+
   int killed;                  // If non-zero, have been killed
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
@@ -56,3 +92,11 @@ struct proc {
 //   original data and bss
 //   fixed-size stack
 //   expandable heap
+
+
+
+
+
+
+
+

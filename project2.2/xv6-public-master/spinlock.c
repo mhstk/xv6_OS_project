@@ -1,13 +1,13 @@
 // Mutual exclusion spin locks.
 
 #include "types.h"
+#include "spinlock.h"
 #include "defs.h"
 #include "param.h"
 #include "x86.h"
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
-#include "spinlock.h"
 
 void
 initlock(struct spinlock *lk, char *name)
@@ -24,8 +24,11 @@ initlock(struct spinlock *lk, char *name)
 void
 acquire(struct spinlock *lk)
 {
+
+
   pushcli(); // disable interrupts to avoid deadlock.
   if(holding(lk))
+    // panic(lk->name);
     panic("acquire");
 
   // The xchg is atomic.
@@ -47,7 +50,8 @@ void
 release(struct spinlock *lk)
 {
   if(!holding(lk))
-    panic("release");
+    // panic("release");
+    panic(lk->name);
 
   lk->pcs[0] = 0;
   lk->cpu = 0;
@@ -105,11 +109,11 @@ void
 pushcli(void)
 {
   int eflags;
-
   eflags = readeflags();
   cli();
   if(mycpu()->ncli == 0)
     mycpu()->intena = eflags & FL_IF;
+  
   mycpu()->ncli += 1;
 }
 
